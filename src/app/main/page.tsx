@@ -1,7 +1,9 @@
 "use client";
-import { Button, Card, Typography } from "@material-tailwind/react";
+import { Card, Typography } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import Xapi from "xoh-xapi";
+import emailjs from 'emailjs-com';
+
 
 let currentDate = new Date();
 let yesterdayDate = new Date(currentDate);
@@ -47,7 +49,27 @@ let x: any = new Xapi({
   broker: "xtb",
 });
 
+
+const sendEmail = async (formData: any) => {
+  try {
+    await emailjs.send(
+'service_9dqsl66', 'service_9dqsl66', formData, '3GlLrmqPpg6L0aMgH'
+    );
+    return "Email sent successfully!";
+  } catch (error) {
+    return "Failed to send email. Please try again.";
+  }
+};
+
 const MainView = () => {
+  const [subject, setSubject] = useState('Trafienia Candle Volume:');
+  const [text, setText] = useState('');
+  const [status, setStatus] = useState('');
+  const templateParams = {
+    subject,
+    text,
+    to_email: 'cetex.tc@gmail.com', // Adres docelowy
+  };
   const [fetch, setFetch] = useState([{}]);
   useEffect(() => {
     console.log("fetching eur...");
@@ -96,7 +118,29 @@ const MainView = () => {
     });
     setFetch(fetched);
     console.log("hits... ", hits);
+    const t = JSON.stringify(hits, null, 2); // Konwersja na czytelny string
+    // sendEmail(templateParams);
+    if (typeof window !== "undefined") {
+
+    emailjs.send(
+      'service_9dqsl66', 'template_eyb0e4m', {
+        to_name: "Tomcio",
+        from_name: "Forex",
+        message: {t},
+      }, '3GlLrmqPpg6L0aMgH'
+          )
+          .then((response) => {
+            console.log("SUCCESS!", response.status, response.text);
+          })
+          .catch((err) => console.error("FAILED...", err));
+        }
+    console.log('hits to text =', t)
+
+    
   });
+
+
+
 
   return (
     <div>
